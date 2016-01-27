@@ -1,0 +1,28 @@
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", inline: "echo Initiate Provisioning ..."
+
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.network "public_network", bridge: ["en0: Wi-Fi (AirPort)", "wc4: Ethernet Adaptor (wc4)"]
+
+  #config.vm.share_folder("share", "/home/vagrant/data", ".")
+  config.vm.synced_folder("share", "/home/vagrant/data")
+
+  config.vm.provider "virtualbox" do |v|
+    v.gui = false
+    v.memory = "4096"
+    v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+  end
+
+  config.vm.provision :puppet do |puppet|
+      puppet.manifests_path = "puppet/manifests"
+      puppet.manifest_file  = "vagrant.pp"
+  end
+
+  config.vm.define "pyvm" do |pyvm|
+    pyvm.vm.hostname = "pyvm"
+    pyvm.vm.network "private_network", ip: "192.168.35.10"
+    pyvm.vm.network "forwarded_port", guest: 80, host: 9050, auto_correct: true
+  end
+
+end

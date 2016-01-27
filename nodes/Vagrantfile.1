@@ -1,0 +1,73 @@
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", inline: "echo Initiate Provisioning ..."
+
+  config.vm.define "nn" do |nn|
+    nn.vm.box = "ubuntu/trusty64"
+    nn.vm.provision :shell, path: "scripts/install_maven.sh"
+    nn.vm.provision :shell, path: "scripts/install_jdk8.sh"
+    nn.vm.provision :shell, path: "scripts/create_hadoop_dirs.sh"
+    
+	nn.vm.hostname = "nn"
+	nn.vm.network "private_network", ip: "192.168.33.20"
+    nn.vm.network "forwarded_port", guest: 80, host: 9020, auto_correct: true
+	nn.vm.network "public_network", bridge: ["en0: Wi-Fi (AirPort)", "wc4: Ethernet Adaptor (wc4)"]
+	
+	config.vm.synced_folder "/Users/craigtrim/data/Data", "/data"
+	config.vm.synced_folder "scripts", "/scripts"
+
+	nn.vm.provider "virtualbox" do |v|
+		v.gui = false
+		v.memory = "2048"
+		v.name = "name_node_01"
+		v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+		v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+	end
+  end
+
+  config.vm.define "dn01" do |dn01|
+    dn01.vm.box = "ubuntu/trusty64"
+    dn01.vm.provision :shell, path: "scripts/install_maven.sh"
+    dn01.vm.provision :shell, path: "scripts/install_jdk8.sh"
+    dn01.vm.provision :shell, path: "scripts/create_hadoop_dirs.sh"
+
+	dn01.vm.hostname = "dn01"
+	dn01.vm.network "private_network", ip: "192.168.33.30"
+	dn01.vm.network "forwarded_port", guest: 80, host: 9030, auto_correct: true
+	dn01.vm.network "public_network", bridge: ["en0: Wi-Fi (AirPort)", "wc4: Ethernet Adaptor (wc4)"]
+
+	config.vm.synced_folder "/Users/craigtrim/data/Data", "/data"
+	config.vm.synced_folder "scripts", "/scripts"
+	
+	dn01.vm.provider "virtualbox" do |v|
+		v.gui = false
+		v.memory = "1024"
+		v.name = "data_node_01"
+		v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    	v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    end
+  end
+
+  config.vm.define "dn02" do |dn02|
+    dn02.vm.box = "ubuntu/trusty64"
+    dn02.vm.provision :shell, path: "scripts/install_maven.sh"
+    dn02.vm.provision :shell, path: "scripts/install_jdk8.sh"
+    dn02.vm.provision :shell, path: "scripts/create_hadoop_dirs.sh"
+
+	dn02.vm.hostname = "dn02"
+	dn02.vm.network "private_network", ip: "192.168.33.31"
+	dn02.vm.network "forwarded_port", guest: 80, host: 9031, auto_correct: true
+	dn02.vm.network "public_network", bridge: ["en0: Wi-Fi (AirPort)", "wc4: Ethernet Adaptor (wc4)"]
+	
+	config.vm.synced_folder "/Users/craigtrim/data/Data", "/data"
+	config.vm.synced_folder "scripts", "/scripts"
+
+	dn02.vm.provider "virtualbox" do |v|
+		v.gui = false
+		v.memory = "1024"
+		v.name = "data_node_02"
+		v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+		v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+	end
+  end
+
+end

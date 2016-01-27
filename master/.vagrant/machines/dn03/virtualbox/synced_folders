@@ -1,0 +1,1 @@
+{"virtualbox":{"/data":{"guestpath":"/data","hostpath":"/Users/craigtrim/data/Data","disabled":false,"__vagrantfile":true},"/vagrant":{"guestpath":"/vagrant","hostpath":"/Users/craigtrim/workspaces/public/vagrant/master","disabled":false,"__vagrantfile":true}}}

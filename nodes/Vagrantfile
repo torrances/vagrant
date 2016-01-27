@@ -1,0 +1,47 @@
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", inline: "echo Initiate Provisioning ..."
+
+	config.vm.box = "ubuntu/trusty64"
+	config.vm.network "public_network", bridge: ["en0: Wi-Fi (AirPort)", "wc4: Ethernet Adaptor (wc4)"]
+
+	config.vm.synced_folder "/Users/craigtrim/data/Data", "/data"
+	config.vm.synced_folder "scripts", "/scripts"
+	
+	config.ssh.username = "vagrant"
+	config.ssh.password = "vagrant"
+
+    config.vm.provision :shell, path: "scripts/install_maven.sh"
+    config.vm.provision :shell, path: "scripts/install_jdk8.sh"
+    config.vm.provision :shell, path: "scripts/create_hadoop_dirs.sh"
+
+  	config.ssh.insert_key = true
+
+	config.vm.provider "virtualbox" do |v|
+		v.gui = false
+		v.memory = "1024"
+		v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+		v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+	end
+
+	config.hostmanager.enabled = true
+	config.hostmanager.manage_host = true
+
+	config.vm.define "nn" do |nn|
+		nn.vm.hostname = "nn"
+		nn.vm.network "private_network", ip: "192.168.33.20"
+		nn.vm.network "forwarded_port", guest: 80, host: 9020, auto_correct: true
+	end
+
+	config.vm.define "dn01" do |dn01|
+		dn01.vm.hostname = "dn01"
+		dn01.vm.network "private_network", ip: "192.168.33.30"
+		dn01.vm.network "forwarded_port", guest: 80, host: 9030, auto_correct: true
+	end
+
+	config.vm.define "dn02" do |dn02|
+		dn02.vm.hostname = "dn02"
+		dn02.vm.network "private_network", ip: "192.168.33.31"
+		dn02.vm.network "forwarded_port", guest: 80, host: 9031, auto_correct: true
+	end
+
+end
